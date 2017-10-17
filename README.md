@@ -22,7 +22,7 @@ Add the dependency
 
 ```
 	dependencies {
-	        compile 'com.github.sunbufu:OkHttpUtil:1.0.2'
+	        compile 'com.github.sunbufu:OkHttpUtil:1.0.3'
 	}
 ```
 #### 1.异步操作
