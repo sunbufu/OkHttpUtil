@@ -1,6 +1,8 @@
 # OkHttpUtil
 一个OkHttp的工具类库
 
+默认使用OkHttp3.9.0
+
 
 
 Add it in your root build.gradle at the end of repositories:

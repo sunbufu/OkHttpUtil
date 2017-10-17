@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
     public void post() {
         OkHttpUtil.post(LOGIN_PASSWORD)
                 .param("userName", "17758248536")
-                .param("passWord", "F59BD65F7EDAFB087A81D4DCA06C4910")
+                .param("passWord", "*****************")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(String result) {
