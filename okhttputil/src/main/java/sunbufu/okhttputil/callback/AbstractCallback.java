@@ -18,18 +18,19 @@ public abstract class AbstractCallback<T> {
      * @param response
      * @throws IOException
      */
-    public void onResponse(final Response response) {
-        OkHttpUtil.getInstance().getHandler().post(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    onSuccess(convertResponse(response));
-                } catch (IOException e) {
-                    e.printStackTrace();
+    public void onResponse(Response response) {
+        try {
+            final T t = convertResponse(response);
+            OkHttpUtil.getInstance().getHandler().post(new Runnable() {
+                @Override
+                public void run() {
+                    onSuccess(t);
                 }
-            }
-        });
-        onAfter();
+            });
+            onAfter();
+        } catch (IOException e) {
+            onError(response.request(), e);
+        }
     }
 
     /**
