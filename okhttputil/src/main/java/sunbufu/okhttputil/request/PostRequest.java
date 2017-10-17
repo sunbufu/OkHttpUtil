@@ -2,33 +2,24 @@ package sunbufu.okhttputil.request;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
+import okhttp3.Response;
 import sunbufu.okhttputil.OkHttpUtil;
-import sunbufu.okhttputil.Param;
 import sunbufu.okhttputil.callback.AbstractCallback;
+import sunbufu.okhttputil.convertor.AbstractConvertor;
 
 /**
  * POST请求
  * @author sunbufu
  */
-public class PostRequest {
+public class PostRequest extends BaseRequest {
 
-    private String url;
-    private List<Param> params;
+    /**参数(文件)*/
     private Map<String, File> fileParams;
 
     public PostRequest(String url) {
-        this.url = url;
-    }
-
-    public PostRequest param(String key, String value) {
-        if (params == null)
-            params = new LinkedList<>();
-        params.add(new Param(key, value));
-        return this;
+        super(url);
     }
 
     public PostRequest param(String key, File value) {
@@ -38,35 +29,28 @@ public class PostRequest {
         return this;
     }
 
+    @Override
     public void execute(AbstractCallback callback) {
         if (fileParams == null) {
-            OkHttpUtil.getInstance().executePostRequest(getUrl(), getParams(), callback);
+            OkHttpUtil.getInstance().enqueuePostRequest(url, params, callback);
         } else {
-            OkHttpUtil.getInstance().executePostRequest(getUrl(), getParams(), fileParams, callback);
+            OkHttpUtil.getInstance().enqueuePostRequest(url, params, fileParams, callback);
         }
     }
 
+    @Override
     public void execute() {
         if (fileParams == null) {
-            OkHttpUtil.getInstance().executePostRequest(getUrl(), getParams(), null);
+            OkHttpUtil.getInstance().enqueuePostRequest(url, params, null);
         } else {
-            OkHttpUtil.getInstance().executePostRequest(getUrl(), getParams(), fileParams, null);
+            OkHttpUtil.getInstance().enqueuePostRequest(url, params, fileParams, null);
         }
     }
 
-    public String getUrl() {
-        return url;
+    @Override
+    public <E> E executeSync(AbstractConvertor<E> convertor) {
+        Response response = OkHttpUtil.getInstance().excutePostRequest(url, params);
+        return (E) convertor.convert(response);
     }
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public List<Param> getParams() {
-        return params;
-    }
-
-    public void setParams(List<Param> params) {
-        this.params = params;
-    }
 }

@@ -8,36 +8,21 @@ import okhttp3.Response;
 import sunbufu.okhttputil.Param;
 
 public class HttpUtil {
-    /** 将传递进来的参数拼接成 url */
-    public static String generateUrlFromParams(String url, Param... params) {
-        if (params == null)
-            return url;
-        StringBuilder sb = new StringBuilder(url);
-        if (url.indexOf('&') > 0 || url.indexOf('?') > 0)
-            sb.append('&');
-        else
-            sb.append('?');
-        for (Param param : params) {
-            sb.append(param.toUrlParam()).append('&');
-        }
-        sb.deleteCharAt(sb.length() - 1);
-        return sb.toString();
-    }
 
     /** 将传递进来的参数拼接成 url */
     public static String generateUrlFromParams(String url, List<Param> params) {
         if (params == null || params.size() <= 0)
             return url;
-        StringBuilder sb = new StringBuilder(url);
+        StringBuilder stringBuilder = new StringBuilder(url);
         if (url.indexOf('&') > 0 || url.indexOf('?') > 0)
-            sb.append('&');
+            stringBuilder.append('&');
         else
-            sb.append('?');
+            stringBuilder.append('?');
         for (Param param : params) {
-            sb.append(param.toUrlParam()).append('&');
+            stringBuilder.append(param.toUrlParam()).append('&');
         }
-        sb.deleteCharAt(sb.length() - 1);
-        return sb.toString();
+        stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+        return stringBuilder.toString();
     }
 
     /** 根据响应头或者url获取文件名 */

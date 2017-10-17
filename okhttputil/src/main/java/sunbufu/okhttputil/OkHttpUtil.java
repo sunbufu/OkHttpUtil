@@ -27,6 +27,8 @@ import sunbufu.okhttputil.util.LogUtil;
 
 public class OkHttpUtil {
 
+    private static final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
+
     private static OkHttpUtil instance;
     private OkHttpClient okHttpClient;
     private Handler handler;
@@ -46,7 +48,7 @@ public class OkHttpUtil {
     }
 
     /**
-     *
+     *  GET请求
      * @param url
      * @return
      */
@@ -55,7 +57,7 @@ public class OkHttpUtil {
     }
 
     /**
-     *
+     *  POST请求
      * @param url
      * @return
      */
@@ -64,12 +66,12 @@ public class OkHttpUtil {
     }
 
     /**
-     * 执行Post请求
+     * 异步执行Post请求
      * @param url
      * @param params
      * @param callback
      */
-    public void executePostRequest(String url, List<Param> params, AbstractCallback callback) {
+    public void enqueuePostRequest(String url, List<Param> params, AbstractCallback callback) {
         if (TextUtils.isEmpty(url)) {
             LogUtil.e("url 不能为空");
             return;
@@ -83,15 +85,32 @@ public class OkHttpUtil {
         enqueueRequest(callback, request);
     }
 
-    private static final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
+    /**
+     * 同步执行Post请求
+     * @param url
+     * @param params
+     */
+    public Response excutePostRequest(String url, List<Param> params) {
+        if (TextUtils.isEmpty(url)) {
+            LogUtil.e("url 不能为空");
+            return null;
+        }
+        FormBody.Builder builder = new FormBody.Builder();
+        if (params != null && params.size() > 0)
+            for (Param param : params)
+                builder.add(param.key, param.value);
+        RequestBody body = builder.build();
+        Request request = new Request.Builder().url(url).post(body).build();
+        return excuteRequest(request);
+    }
 
     /**
-     * 执行Post请求,上传文件
+     * 异步执行Post请求,上传文件
      * @param url
      * @param params
      * @param callback
      */
-    public void executePostRequest(String url, List<Param> params, Map<String, File> fileParams, AbstractCallback callback) {
+    public void enqueuePostRequest(String url, List<Param> params, Map<String, File> fileParams, AbstractCallback callback) {
         if (TextUtils.isEmpty(url)) {
             LogUtil.e("url 不能为空");
             return;
@@ -111,12 +130,12 @@ public class OkHttpUtil {
     }
 
     /**
-     * 执行Get请求
+     * 异步执行Get请求
      * @param url
      * @param params
      * @param callback
      */
-    public void executeGetRequest(String url, List<Param> params, AbstractCallback callback) {
+    public void enqueueGetRequest(String url, List<Param> params, AbstractCallback callback) {
         if (TextUtils.isEmpty(url)) {
             LogUtil.e("url 不能为空");
             return;
@@ -127,7 +146,22 @@ public class OkHttpUtil {
     }
 
     /**
-     * 执行请求
+     * 同步执行Get请求
+     * @param url
+     * @param params
+     */
+    public Response excuteGetRequest(String url, List<Param> params) {
+        if (TextUtils.isEmpty(url)) {
+            LogUtil.e("url 不能为空");
+            return null;
+        }
+        Request.Builder builder = new Request.Builder().url(HttpUtil.generateUrlFromParams(url, params));
+        Request request = builder.build();
+        return excuteRequest(request);
+    }
+
+    /**
+     * 异步执行请求
      * @param callback
      * @param request
      */
@@ -142,22 +176,25 @@ public class OkHttpUtil {
             @Override
             public void onResponse(Call call, Response response) {
                 if (callback != null) {
-                    try {
-//                    callback.onResponse(response);
-                        final Object o = callback.convertResponse(response);
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                callback.onSuccess(o);
-                            }
-                        });
-                        callback.onAfter();
-                    } catch (IOException e) {
-                        callback.onFailure(request, e);
-                    }
+                    callback.onResponse(response);
                 }
             }
         });
+    }
+
+    /**
+     * 同步执行请求
+     * @param request
+     * @return
+     */
+    private Response excuteRequest(Request request) {
+        Response response = null;
+        try {
+            response = okHttpClient.newCall(request).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return response;
     }
 
     public Handler getHandler() {

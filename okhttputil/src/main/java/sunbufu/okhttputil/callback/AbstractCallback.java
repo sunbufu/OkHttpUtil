@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import okhttp3.Request;
 import okhttp3.Response;
+import sunbufu.okhttputil.OkHttpUtil;
 
 /**
  * 基础回调
@@ -17,8 +18,17 @@ public abstract class AbstractCallback<T> {
      * @param response
      * @throws IOException
      */
-    public void onResponse(Response response) throws IOException {
-        onSuccess(convertResponse(response));
+    public void onResponse(final Response response) {
+        OkHttpUtil.getInstance().getHandler().post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    onSuccess(convertResponse(response));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
         onAfter();
     }
 
@@ -50,7 +60,7 @@ public abstract class AbstractCallback<T> {
     }
 
     /**
-     * 请求成功
+     * 请求成功(在UI线程执行)
      * @param result
      */
     public abstract void onSuccess(T result);

@@ -13,6 +13,8 @@ import okhttp3.Request;
 import sunbufu.okhttputil.OkHttpUtil;
 import sunbufu.okhttputil.callback.FileCallback;
 import sunbufu.okhttputil.callback.StringCallback;
+import sunbufu.okhttputil.convertor.FileConvertor;
+import sunbufu.okhttputil.convertor.StringConvertor;
 import sunbufu.okhttputil.util.LogUtil;
 
 public class MainActivity extends AppCompatActivity {
@@ -39,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.getBtn)
     public void get() {
+        //异步
         OkHttpUtil.get(VERSION_LAST)
                 .param("device", "Android")
                 .execute(new StringCallback() {
@@ -50,8 +53,22 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    @OnClick(R.id.syncGetBtn)
+    public void syncGet() {
+        //同步
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                LogUtil.e(OkHttpUtil.get(VERSION_LAST)
+                        .param("device", "Android")
+                        .executeSync(new StringConvertor()));
+            }
+        }).start();
+    }
+
     @OnClick(R.id.postBtn)
     public void post() {
+        //异步
         OkHttpUtil.post(LOGIN_PASSWORD)
                 .param("userName", "17758248536")
                 .param("passWord", "*****************")
@@ -70,16 +87,18 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    @OnClick(R.id.checkBtn)
-    public void check() {
-        OkHttpUtil.post(REFRESH_WALLET)
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(String result) {
-                        LogUtil.e(result);
-                        resultText.setText(result);
-                    }
-                });
+    @OnClick(R.id.syncPostBtn)
+    public void syncPost() {
+        //同步
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                LogUtil.e(OkHttpUtil.post(LOGIN_PASSWORD)
+                        .param("userName", "17758248536")
+                        .param("passWord", "*****************")
+                        .executeSync(new StringConvertor()));
+            }
+        }).start();
     }
 
     @OnClick(R.id.upLoadBtn)
@@ -98,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.downLoadBtn)
     public void downLoad() {
+        //异步
         OkHttpUtil.get(APK_URL)
                 .execute(new FileCallback() {
                     @Override

@@ -1,53 +1,34 @@
 package sunbufu.okhttputil.request;
 
-import java.util.LinkedList;
-import java.util.List;
-
+import okhttp3.Response;
 import sunbufu.okhttputil.OkHttpUtil;
-import sunbufu.okhttputil.Param;
 import sunbufu.okhttputil.callback.AbstractCallback;
+import sunbufu.okhttputil.convertor.AbstractConvertor;
 
 /**
  * GET请求
  * @author sunbufu
  */
-public class GetRequest {
-
-    private String url;
-    private List<Param> params;
+public class GetRequest extends BaseRequest {
 
     public GetRequest(String url) {
-        this.url = url;
+        super(url);
     }
 
-    public GetRequest param(String key, String value) {
-        if (params == null)
-            params = new LinkedList<>();
-        params.add(new Param(key, value));
-        return this;
-    }
-
+    @Override
     public void execute(AbstractCallback callback) {
-        OkHttpUtil.getInstance().executeGetRequest(getUrl(), getParams(), callback);
+        OkHttpUtil.getInstance().enqueueGetRequest(url, params, callback);
     }
 
+    @Override
     public void execute() {
-        OkHttpUtil.getInstance().executeGetRequest(getUrl(), getParams(), null);
+        OkHttpUtil.getInstance().enqueueGetRequest(url, params, null);
     }
 
-    public String getUrl() {
-        return url;
+    @Override
+    public <E> E executeSync(AbstractConvertor<E> convertor) {
+        Response response = OkHttpUtil.getInstance().excuteGetRequest(url, params);
+        return (E) convertor.convert(response);
     }
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public List<Param> getParams() {
-        return params;
-    }
-
-    public void setParams(List<Param> params) {
-        this.params = params;
-    }
 }
