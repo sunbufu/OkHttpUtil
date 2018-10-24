@@ -70,7 +70,7 @@ OkHttpUtil.get(url)
 
 #### 2.同步操作
 
-```
+```java
 //GET
 String result = OkHttpUtil.get(url)
                         .param("key", "value")
