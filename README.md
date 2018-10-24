@@ -25,7 +25,7 @@ Add the dependency
 ```
 #### 1.异步操作
 
-```
+```java
 //GET
 OkHttpUtil.get(url)
                 .param("key", "value")
